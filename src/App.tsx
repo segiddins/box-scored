@@ -1,4 +1,6 @@
 import React from "react";
+import { useLocation, BrowserRouter } from "react-router-dom";
+import * as QueryString from "query-string";
 import { Alert, Card, Table } from "./Components";
 import * as CSV from "@vanillaes/csv";
 import classnames from "classnames";
@@ -20,7 +22,7 @@ type Park = {
 async function getParks(): Promise<Map<string, Park>> {
   const response = await fetch(
     // "https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/misc/parkcode.txt",
-    "./chadwickbureau-retrosheet/misc/parkcode.txt",
+    "chadwickbureau-retrosheet/misc/parkcode.txt",
     { method: "GET" }
   );
   const body = await response.text();
@@ -707,7 +709,6 @@ const PlayByPlay = ({ game }: { game: Game }) => {
 };
 
 const GameC = ({ game }: { game: Game }) => {
-  const [showJSON, setShowJSON] = React.useState(false);
   return (
     <>
       <Card.Card>
@@ -725,19 +726,12 @@ const GameC = ({ game }: { game: Game }) => {
           </a>
         </Card.Title>
         <Card.Body>
-          <Card.Actions>
-            <Card.Action onClick={() => setShowJSON(!showJSON)}>
-              Toggle JSON
-            </Card.Action>
-          </Card.Actions>
+          <Card.Actions />
           <Card.Text>
             <div
               className={classnames("grid", "gap-6")}
               style={{ gridTemplateColumns: "100%" }}
             >
-              {showJSON && (
-                <pre className="text-left">{JSON.stringify(game, null, 2)}</pre>
-              )}
               <GameInfo info={game.info} />
               {/* <StartingLineup game={game} /> */}
               <BoxScore game={game} />
@@ -764,20 +758,30 @@ const LogsC = ({ logs }: { logs: Logs }) => {
   );
 };
 
-function App() {
+function Body() {
   const [logs, setLogs] = React.useState<Logs | null>(null);
   const [parks, setParks] = React.useState<Map<string, Park> | null>(null);
   const [people, setPeople] = React.useState<Map<string, Person> | null>(null);
 
+  const { search } = useLocation();
+
   React.useEffect(() => {
-    getLogs().then((logs) => setLogs(logs));
-    getParks().then((parks) => {
-      setParks(parks);
-    });
+    const query = QueryString.parse(search);
+    const str = (name: string): string | null => {
+      const v = query[name];
+      return typeof v === "string" ? v : null;
+    };
+
+    getLogs({ year: str("year") || "2020", team: str("team") || "NYA" }).then(
+      (logs) => setLogs(logs)
+    );
+    // getParks().then((parks) => {
+    //   setParks(parks);
+    // });
     // getPeople().then((people) => {
     //   setPeople(people);
     // });
-  }, [setLogs, setParks, setPeople]);
+  }, [setLogs, setParks, setPeople, search]);
 
   return (
     <>
@@ -803,6 +807,14 @@ function App() {
         {logs && <LogsC logs={logs} />}
       </MetadataContext.Provider>
     </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Body />
+    </BrowserRouter>
   );
 }
 

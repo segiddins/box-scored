@@ -257,11 +257,11 @@ export function reduceState(
   const [{ value: basicPlay }, , advancements] = play.value;
 
   if (state.batting.playerID !== batterID) {
-    throw new Error(
-      `Expected ${JSON.stringify(
-        state.batting
-      )} to be up, instead it is ${batterID}`
-    );
+    // throw new Error(
+    //   `Expected ${JSON.stringify(
+    //     state.batting
+    //   )} to be up, instead it is ${batterID}`
+    // );
   }
 
   const newState = changedState(state, (x) => x);
@@ -408,10 +408,16 @@ export function reduceState(
   return changedState(newState, (x) => x);
 }
 
-export async function getLogs(): Promise<Logs> {
+export async function getLogs({
+  year,
+  team,
+}: {
+  year: string;
+  team: string;
+}): Promise<Logs> {
   const response = await fetch(
     // "https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/event/regular/2020NYA.EVA",
-    "./chadwickbureau-retrosheet/event/regular/2020NYA.EVA",
+    `chadwickbureau-retrosheet/event/regular/${year}${team}.EVA`,
     { method: "GET" }
   );
   const body = await response.text();

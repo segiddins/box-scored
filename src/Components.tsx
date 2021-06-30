@@ -109,7 +109,7 @@ const CardBody = ({ children }: { children: React.ReactNode }) => {
 const CardText = ({ children }: { children: React.ReactNode }) => {
   return <div className="mt-2 text-sm text-gray-500">{children}</div>;
 };
-const CardActions = ({ children }: { children: React.ReactNode }) => {
+const CardActions = ({ children }: { children?: React.ReactNode }) => {
   return (
     <div className="sm:flex sm:flex-wrap sm:items-center sm:justify-items-center justify-center">
       {children}

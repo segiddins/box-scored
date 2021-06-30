@@ -148,7 +148,8 @@ const hitLocation = bnb
     fielder
       .or(bnb.text("0").node("Unknown location"))
       .repeat(1, 2)
-      .map((f) => f.map((a) => a.value)),
+      .map((f) => f.map((a) => a.value))
+      .or(bnb.choice(bnb.text("+"), bnb.text("-")).map(() => null)),
     bnb
       .text("L")
       .or(bnb.ok(null))
@@ -171,12 +172,12 @@ const hitLocation = bnb
   )
   .map(([fieldLocation, towardTheLine, severity, depth, foul]) => {
     return {
-      fieldLocation: fieldLocation.join("-"),
+      fieldLocation: fieldLocation?.join("-"),
       towardTheLine,
       severity,
       depth,
       foul,
-      desc: [severity, depth, fieldLocation.join("-"), foul && "(foul)"]
+      desc: [severity, depth, fieldLocation?.join("-"), foul && "(foul)"]
         .filter((s) => s)
         .join(" "),
     };
